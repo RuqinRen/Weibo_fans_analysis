@@ -1,7 +1,7 @@
-
-options(scipen =  200)
+options(scipen =  999)
 library(dplyr)
 library(readxl)
+install.packages("purrr")
 library(purrr)
 library(lubridate)
 
@@ -27,65 +27,91 @@ write.table(active_uid, file="active_uid.csv",col.names=F, sep=",",quote = FALSE
 #######################################################
 
 weibo_content <- read_excel("result.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
+
 colnames(weibo_content)
 dim(weibo_content)
 head(weibo_content,5)
-weibo_content2 <- read_excel("result2.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content3 <- read_excel("result3.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content4 <- read_excel("result4.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content5 <- read_excel("result5.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content6 <- read_excel("result6.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content7 <- read_excel("result7.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content8 <- read_excel("result8.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content9 <- read_excel("result9.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content10 <- read_excel("result10.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
-weibo_content11 <- read_excel("result11.xlsx", sheet = 1, col_names = c("uid", "mid", "timestamp","weibo_text","mentions"), col_types = c("text", "text", "guess","text","text"))
 
+#some errors: There should be only 5 columns, but there are~1000 columns with non-empty values
+#find the indexes of matching values for the function : the cell is not empty
+#which(map_lgl(weibo_content[[10]], function(x) x != ""))
+#1155 2310 2311 2312 2313 2314 2315
+
+weibo_content2 <- read.csv("result2.csv", header = FALSE, sep = ",")
+colnames(weibo_content2)
+head(weibo_content2,5)
+dim(weibo_content2)
+
+weibo_content3 <- read.csv("result3.csv", header = FALSE, sep = ",")
+dim(weibo_content3)
 
 #### define a function df_list to get unique rows
-df_list <- list(weibo_content, weibo_content2, weibo_content3, weibo_content4, weibo_content5, weibo_content6, weibo_content7, weibo_content8)
+df_list <- list(weibo_content, weibo_content2, weibo_content3)
 
 df_list <- lapply(df_list, function(x) {unique(x)})
-
 unique_weibo1 <- df_list[[1]]
 unique_weibo2 <- df_list[[2]]
 unique_weibo3 <- df_list[[3]]
-unique_weibo4 <- df_list[[4]]
-unique_weibo5 <- df_list[[5]]
-unique_weibo6 <- df_list[[6]]
-unique_weibo7 <- df_list[[7]]
-unique_weibo8 <- df_list[[8]]
+#worked. Do the same for other csv files
+
+weibo_content4 <- read.csv("result4.csv", header = FALSE, sep = ",")
+dim(weibo_content4)
+
+weibo_content5 <- read.csv("result5.csv", header = FALSE, sep = ",")
+dim(weibo_content5)
+
+weibo_content6 <- read.csv("result6.csv", header = FALSE, sep = ",")
+dim(weibo_content6)
+
+df_list <- list(weibo_content4, weibo_content5, weibo_content6)
+unique_weibo4 <- df_list[[1]]
+unique_weibo5 <- df_list[[2]]
+unique_weibo6 <- df_list[[3]]
+
+######
+weibo_content7 <- read.csv("result7.csv", header = FALSE, sep = ",")
+dim(weibo_content7)
+
+weibo_content8 <- read.csv("result8.csv", header = FALSE, sep = ",")
+dim(weibo_content8)
+
+weibo_content9 <- read.csv("result9.csv", header = FALSE, sep = ",")
+dim(weibo_content9)
 
 ###
-df_list <- list(weibo_content9, weibo_content10, weibo_content11)
+df_list <- list(weibo_content7, weibo_content8, weibo_content9)
+unique_weibo7 <- df_list[[1]]
+unique_weibo8 <- df_list[[2]]
+unique_weibo9 <- df_list[[3]]
 
-unique_weibo9 <- df_list[[1]]
-unique_weibo10 <- df_list[[2]]
-unique_weibo11 <- df_list[[3]]
+####
+weibo_content10 <- read.csv("result10.csv", header = FALSE, sep = ",")
+dim(weibo_content10)
 
+weibo_content11 <- read.csv("result11.csv", header = FALSE, sep = ",")
+dim(weibo_content11)
+
+df_list <- list(weibo_content10, weibo_content11)
+unique_weibo10 <- df_list[[1]]
+unique_weibo11 <- df_list[[2]]
 ###
 all_weibo <- rbind(unique_weibo1, unique_weibo2, unique_weibo3, unique_weibo4, unique_weibo5, unique_weibo6,
                    unique_weibo6, unique_weibo7, unique_weibo8, unique_weibo9, unique_weibo10, unique_weibo11)
 
 # the output
 dim(all_weibo)
-#[1] 740557      5
+#[1] 816305      5
 colnames(all_weibo) <- c("uid","mid","timestamp","weibo_text","mention")
 write.csv(all_weibo, file = "all_weibo.csv")
 all_weibo <- read.csv("all_weibo.csv", header = TRUE, sep = ",", quote = "")
 
-#################
-## textual data clean-up
-#################
+###remove zhuan fa wei bo转发微博＃＃＃
 
 library(dplyr)
-#organizing
 weibo <- all_weibo %>% mutate_if(is.factor, as.character)
+weibo <- weibo %>%  filter( weibo_text !='转发微博')
 Encoding(weibo[[4]]) <- "UTF-8"
 Encoding(weibo[[5]]) <- "UTF-8"
-
-###remove zhuan fa wei bo转发微博＃＃＃
-weibo <- all_weibo %>%  filter( weibo_text !='转发微博' & weibo_text !='Repost') # down to 632645 rows
 
 #####remove special characters like "//@中华牙膏官微:"
 
@@ -99,7 +125,6 @@ removeSpecialChar <- function(weibo_str) {
 
 weiboclean <- weibo %>% mutate(removeSpecialChar(weibo_text))
 names(weiboclean)[6] <- "clean_weibotext" 
-weiboclean <- unique(weiboclean) #down to 453867
 
 ### handle date time in the format of ymd_hm from lubricate package
 ### the scandale exploded in 5.21 morning 10:29, with pictures showing the dinner at 5.20 night
@@ -111,29 +136,13 @@ weiboclean<- weiboclean %>%
     ymd_hm(timestamp) >   "2019-05-21 10:28:00 UTC" ~ "after"
   ))
 
-### another version with raw timestamp ##
-#########################################
-# a <- weiboclean[,c('timestamp','mid')]
-#write.csv(a, file = 'mid_rawtimestamp.csv')
+table(weiboclean$timestamp)
+### after before 
+###415184 295498 
 
-table(weiboclean$timestamp) #some rows are filtered out, due to observation time period is ending before the calendar day
-#after before 
-#238305 186843 
-
-write.csv(weiboclean, file = "weiboclean_with_date.csv")
-textonly <- weiboclean[,c(2,6)] #only mid and clean text, 2 columns
-write.csv(textonly, file = "weiboclean_only_mid_text.csv")
+write.csv(weiboclean, file = "weiboclean.csv")
+textonly <- weiboclean[,c(2,6)]
+write.csv(textonly, file = "textonly.csv")
 head(textonly)
 
-###############
-## compare with current sentiment score results
-## find the mids + text that needs evaluation
-######################
-wb_sentiment <- read.csv("wb_sentiment.csv")  #448679
-wb_sentiment <- unique(wb_sentiment) #448379 rows have been evaluated
-wb_sentiment$mid <- as.character(wb_sentiment$mid)
-
-mid_need_sentimentscore <- as.data.frame(setdiff(textonly$mid, wb_sentiment$mid)) #5135 rows need evaluation
-colnames(mid_need_sentimentscore)[1] <- 'mid'
-a <- semi_join(textonly, mid_need_sentimentscore, by ='mid')
-write.csv(a, file = "mid_need_sentimentscore.csv")
+weiboclean <- read.csv("weiboclean.csv")
