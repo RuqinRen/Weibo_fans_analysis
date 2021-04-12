@@ -1,4 +1,3 @@
-
 options(scipen =  999)
 library(dplyr)
 library(readxl)
@@ -132,10 +131,28 @@ names(weiboclean)[7] <- "clean_weibotext"
 
 weiboclean<- weiboclean %>% 
   filter(ymd_hm(timestamp) <= '2019-05-27 20:30:00 UTC') %>%
-  mutate(timestamp = case_when(
+  mutate(time_beforeafter = case_when(
     ymd_hm(timestamp) <= "2019-05-21 10:28:00 UTC"  ~ "before",
     ymd_hm(timestamp) >   "2019-05-21 10:28:00 UTC" ~ "after"
+  )) %>%
+  mutate(time_daily = case_when(
+    ymd_hm(timestamp) <= "2019-05-15 10:28:00 UTC"  ~ "1",
+    "2019-05-15 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-16 10:28:00 UTC" ~ "2",
+    "2019-05-16 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-17 10:28:00 UTC" ~ "3",
+    "2019-05-17 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-18 10:28:00 UTC" ~ "4",
+    "2019-05-18 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-19 10:28:00 UTC" ~ "5",
+    "2019-05-19 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-20 10:28:00 UTC" ~ "6",
+    "2019-05-20 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-21 10:28:00 UTC" ~ "7",
+    "2019-05-21 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-22 10:28:00 UTC" ~ "8",
+    "2019-05-22 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-23 10:28:00 UTC" ~ "9",
+    "2019-05-23 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-24 10:28:00 UTC" ~ "10",
+    "2019-05-24 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-25 10:28:00 UTC" ~ "11",
+    "2019-05-25 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-26 10:28:00 UTC" ~ "12",
+    "2019-05-26 10:28:00 UTC" < ymd_hm(timestamp)  & ymd_hm(timestamp) <= "2019-05-27 10:28:00 UTC" ~ "13",
+    ymd_hm(timestamp) > "2019-05-27 10:28:00 UTC" ~ "14",
   ))
+
+table(weiboclean$time_daily)
 
 table(weiboclean$timestamp)
 ###  after before 
@@ -150,8 +167,25 @@ weiboclean <- read.csv("/home/rstudio/roywang_sinaweibo/weiboclean.csv")
 head(weiboclean$weibo_text,40)
 
 #### load demo csv files with "mention" and "mention_num" April 09
-demo <- read.csv("demo.csv", header = T)
-demo2 <- read.csv("demo2.csv", header = T)
-demo3 <- read.csv("demo3.csv", header = T)
-data0409 <- rbind(demo, demo2, demo3)
-t.test(data0409$mention_num ~ data0409$timestamp)
+# demo <- read.csv("demo.csv", header = T)
+# demo2 <- read.csv("demo2.csv", header = T)
+# demo3 <- read.csv("demo3.csv", header = T)
+# data0409 <- rbind(demo, demo2, demo3)
+
+allweibo <- read.csv("allweibo0409.csv", header = T)
+allweibo <- allweibo[c(2,3,4,6,7,9)]
+weiboclean <- weiboclean[c(3,4,7,8,9)]
+allweibo_withmention <-inner_join(allweibo, weiboclean, by = "mid")
+allweibo_withmention <- unique(allweibo_withmention)
+write.csv(allweibo_withmention, file = "allweibo_withmention.csv", row.names = FALSE)
+
+a <- allweibo_withmention  %>%
+  group_by(time_daily) %>%
+  summarize(mean_mention_num = mean(mention_num, na.rm = TRUE))
+
+a$time_daily <- as.numeric(a$time_daily)
+
+ggplot(a, aes(x=time_daily, y=mean_mention_num)) + 
+  geom_bar(stat = "identity")
+
+t.test(allweibo_withmention$mention_num ~ allweibo_withmention$time_beforeafter)
